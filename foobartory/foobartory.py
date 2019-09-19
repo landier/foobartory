@@ -10,10 +10,12 @@ class Foobartory:
     def __init__(self):
         self._robots = []
         self._warehouses = defaultdict(list)
+        self._warehouses['money'] = 0
 
     def _display_stats(self):
         print("-"*20)
         print(f"robots: {len(self._robots)}")
+        print(f"money: {self._warehouses['money']}")
         print(f"foo: {len(self._warehouses['foo'])}")
         print(f"bar: {len(self._warehouses['bar'])}")
         print(f"foobar: {len(self._warehouses['foobar'])}")

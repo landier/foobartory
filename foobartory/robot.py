@@ -33,6 +33,10 @@ class Robot:
             self._last_action = 'assemble_foobar'
             self._get_busy_for(2)
             return True
+        elif activity == 'sell_foobars' and self._last_action in [None, 'sell_foobars', 'move']:
+            self._last_action = 'sell_foobars'
+            self._get_busy_for(10)
+            return True
         else:
             self._last_action = 'move'
             self._get_busy_for(5)
@@ -53,6 +57,13 @@ class Robot:
                 bar = self._warehouses['bar'].pop()
                 self._warehouses['foobar'].append((foo, bar))
 
+    def sell_foobars(self):
+        if self._execute_action_or_move('sell_foobars'):
+            sold_foobars = min(len(self._warehouses['foobar']), 5)
+            for i in range(sold_foobars):
+                self._warehouses['foobar'].pop()
+            self._warehouses['money'] += sold_foobars
+
     def _is_foo_stock_low(self):
         return len(self._warehouses['foo']) == 0
 
@@ -62,8 +73,13 @@ class Robot:
     def _can_assemble_foobar(self):
         return not (self._is_foo_stock_low() or self._is_bar_stock_low())
 
+    def _can_sell_foobars(self):
+        return len(self._warehouses['foobar']) >= 5
+
     def next_action(self, success_threshold=60):
-        if self._is_foo_stock_low():
+        if self._can_sell_foobars():
+            self.sell_foobars()
+        elif self._is_foo_stock_low():
             self.mine_foo()
         elif self._is_bar_stock_low():
             self.mine_bar()
