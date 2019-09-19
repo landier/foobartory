@@ -82,3 +82,17 @@ def test_assemble_foobar_when_failure():
     assert len(robot.warehouses['bar']) == 1
     assert robot.warehouses['bar'][0] == bar
     assert len(robot.warehouses['foobar']) == 0
+
+
+def test_mine_foo_then_mine_bar_should_not_mine_bar_but_move():
+    # Given
+    robot = Robot()
+
+    # When
+    robot.mine_foo()
+    robot.mine_bar()
+
+    # Then
+    assert len(robot.warehouses['foo']) == 1
+    assert len(robot.warehouses['bar']) == 0
+    assert robot._last_action == 'move'

@@ -15,25 +15,40 @@ class Robot:
         self._nb_actions = 0
 
     def _get_busy_for(self, duration):
-        self._nb_actions += 1
         if TEST is None:
             time.sleep(duration)
 
-    def move(self):
-        self._get_busy_for(5)
+    def _execute_action_or_move(self, activity):
+        self._nb_actions += 1
+        if activity == 'mine_foo' and self._last_action in [None, 'mine_foo', 'move']:
+            self._last_action = 'mine_foo'
+            self._get_busy_for(1)
+            return True
+        elif activity == 'mine_bar' and self._last_action in [None, 'mine_bar', 'move']:
+            self._last_action = 'mine_bar'
+            mining_duration = uniform(0.5, 2)
+            self._get_busy_for(mining_duration)
+            return True
+        elif activity == 'assemble_foobar' and self._last_action in [None, 'assemble_foobar', 'move']:
+            self._last_action = 'assemble_foobar'
+            self._get_busy_for(2)
+            return True
+        else:
+            self._last_action = 'move'
+            self._get_busy_for(5)
+            return False
 
     def mine_foo(self):
-        self._get_busy_for(1)
-        self.warehouses['foo'].append(uuid4())
+        if self._execute_action_or_move('mine_foo'):
+            self.warehouses['foo'].append(uuid4())
 
     def mine_bar(self):
-        mining_duration = uniform(0.5, 2)
-        self._get_busy_for(mining_duration)
-        self.warehouses['bar'].append(uuid4())
+        if self._execute_action_or_move('mine_bar'):
+            self.warehouses['bar'].append(uuid4())
 
     def assemble_foobar(self, success_threshold=60):
-        self._get_busy_for(2)
-        foo = self.warehouses['foo'].pop()
-        if randrange(100) < success_threshold:
-            bar = self.warehouses['bar'].pop()
-            self.warehouses['foobar'].append((foo, bar))
+        if self._execute_action_or_move('assemble_foobar'):
+            foo = self.warehouses['foo'].pop()
+            if randrange(100) < success_threshold:
+                bar = self.warehouses['bar'].pop()
+                self.warehouses['foobar'].append((foo, bar))
