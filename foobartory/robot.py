@@ -13,14 +13,15 @@ class Robot:
         self._id = id
         self._warehouses = warehouses
         self._last_action = None
-        self._nb_actions = 0
 
     def _get_busy_for(self, duration):
         if TEST is None:
             time.sleep(duration * SLEEP_RATIO)
 
     def _execute_action_or_move(self, activity):
-        self._nb_actions += 1
+        """
+        Handle moves and action execution (wait for duration).
+        """
         if activity == 'mine_foo' and self._last_action in [None, 'mine_foo', 'move']:
             self._last_action = 'mine_foo'
             self._get_busy_for(1)

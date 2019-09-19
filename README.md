@@ -19,3 +19,4 @@ make
 
 ## TODO
 * Add multithreading to execute robots in parallel and not sequentially
+* Count time execution (in seconds) to completion
