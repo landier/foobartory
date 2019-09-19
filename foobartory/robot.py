@@ -1,6 +1,7 @@
 from collections import defaultdict
 import os
 import time
+from random import uniform
 
 
 TEST = os.environ.get('TEST', None)
@@ -15,14 +16,15 @@ class Robot:
             time.sleep(duration)
 
     def move(self):
-        pass
+        self._sleep(5)
 
     def mine_foo(self):
         self._sleep(1)
         self.warehouses['foo'] += 1
 
     def mine_bar(self):
-        self._sleep(1)
+        mining_duration = uniform(0.5, 2)
+        self._sleep(mining_duration)
         self.warehouses['bar'] += 1
 
     def build_foobar(self):
