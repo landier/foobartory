@@ -22,3 +22,26 @@ def test_mine_foo_twice():
 
     # Then
     assert robot.warehouses['foo'] == 2
+
+
+def test_mine_bar():
+    # Given
+    robot = Robot()
+
+    # When
+    robot.mine_bar()
+
+    # Then
+    assert robot.warehouses['bar'] == 1
+
+
+def test_mine_bar_twice():
+    # Given
+    robot = Robot()
+
+    # When
+    robot.mine_bar()
+    robot.mine_bar()
+
+    # Then
+    assert robot.warehouses['bar'] == 2

@@ -22,7 +22,8 @@ class Robot:
         self.warehouses['foo'] += 1
 
     def mine_bar(self):
-        pass
+        self._sleep(1)
+        self.warehouses['bar'] += 1
 
     def build_foobar(self):
         pass

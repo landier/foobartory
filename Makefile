@@ -11,7 +11,7 @@ run:
 	env/bin/python3 foobartory/foobartory.py
 
 test:
-	env/bin/flake8
+	-env/bin/flake8
 	TEST=1 env/bin/pytest
 
 clean:
