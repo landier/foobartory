@@ -16,3 +16,6 @@ make
 * __make run__: Execute game
 * __make test__: Execute flake8 & unit tests
 * __make clean__: Delete virtualenv
+
+## TODO
+* Add multithreading to execute robots in parallel and not sequentially
