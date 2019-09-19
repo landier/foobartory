@@ -17,6 +17,47 @@ make
 * __make test__: Execute flake8 & unit tests
 * __make clean__: Delete virtualenv
 
+## Example
+```
+...
+--------------------
+robots: 29
+money: 4
+foo: 4
+bar: 1
+foobar: 0
+--------------------
+robots: 29
+money: 4
+foo: 5
+bar: 1
+foobar: 0
+--------------------
+robots: 29
+money: 4
+foo: 5
+bar: 1
+foobar: 0
+--------------------
+robots: 29
+money: 4
+foo: 5
+bar: 1
+foobar: 0
+--------------------
+robots: 29
+money: 4
+foo: 6
+bar: 1
+foobar: 0
+--------------------
+robots: 30
+money: 1
+foo: 0
+bar: 1
+foobar: 0
+```
+
 ## TODO
 * Add multithreading to execute robots in parallel and not sequentially
 * Count time execution (in seconds) to completion
