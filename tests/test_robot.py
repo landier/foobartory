@@ -1,3 +1,4 @@
+from uuid import UUID
 from foobartory.robot import Robot
 
 
@@ -9,7 +10,7 @@ def test_mine_foo():
     robot.mine_foo()
 
     # Then
-    assert robot.warehouses['foo'] == 1
+    assert len(robot.warehouses['foo']) == 1
 
 
 def test_mine_foo_twice():
@@ -21,7 +22,7 @@ def test_mine_foo_twice():
     robot.mine_foo()
 
     # Then
-    assert robot.warehouses['foo'] == 2
+    assert len(robot.warehouses['foo']) == 2
 
 
 def test_mine_bar():
@@ -32,7 +33,7 @@ def test_mine_bar():
     robot.mine_bar()
 
     # Then
-    assert robot.warehouses['bar'] == 1
+    assert len(robot.warehouses['bar']) == 1
 
 
 def test_mine_bar_twice():
@@ -44,4 +45,40 @@ def test_mine_bar_twice():
     robot.mine_bar()
 
     # Then
-    assert robot.warehouses['bar'] == 2
+    assert len(robot.warehouses['bar']) == 2
+
+
+def test_assemble_foobar_when_success():
+    # Given
+    robot = Robot()
+    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
+    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
+    robot.warehouses["foo"].append(foo)
+    robot.warehouses["bar"].append(bar)
+
+    # When
+    robot.assemble_foobar(success_threshold=100)
+
+    # Then
+    assert len(robot.warehouses['foo']) == 0
+    assert len(robot.warehouses['bar']) == 0
+    assert len(robot.warehouses['foobar']) == 1
+    assert robot.warehouses['foobar'][0] == (foo, bar)
+
+
+def test_assemble_foobar_when_failure():
+    # Given
+    robot = Robot()
+    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
+    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
+    robot.warehouses["foo"].append(foo)
+    robot.warehouses["bar"].append(bar)
+
+    # When
+    robot.assemble_foobar(success_threshold=0)
+
+    # Then
+    assert len(robot.warehouses['foo']) == 0
+    assert len(robot.warehouses['bar']) == 1
+    assert robot.warehouses['bar'][0] == bar
+    assert len(robot.warehouses['foobar']) == 0
