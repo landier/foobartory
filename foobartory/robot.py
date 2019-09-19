@@ -1,7 +1,7 @@
 from collections import defaultdict
 import os
 import time
-from random import uniform
+from random import randrange, uniform
 
 
 TEST = os.environ.get('TEST', None)
@@ -27,5 +27,11 @@ class Robot:
         self._sleep(mining_duration)
         self.warehouses['bar'] += 1
 
-    def build_foobar(self):
-        pass
+    def assemble_foobar(self):
+        self._sleep(2)
+        if randrange(100) < 60:
+            self.warehouses['foo'] -= 1
+            self.warehouses['bar'] -= 1
+            self.warehouses['foobar'] += 1
+        else:
+            self.warehouses['bar'] -= 1
