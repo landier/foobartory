@@ -5,6 +5,7 @@ from uuid import uuid4
 
 
 TEST = os.environ.get('TEST', None)
+SLEEP_RATIO = os.environ.get('SLEEP_RATIO', 0.1)
 
 
 class Robot:
@@ -16,7 +17,7 @@ class Robot:
 
     def _get_busy_for(self, duration):
         if TEST is None:
-            time.sleep(duration)
+            time.sleep(duration * SLEEP_RATIO)
 
     def _execute_action_or_move(self, activity):
         self._nb_actions += 1

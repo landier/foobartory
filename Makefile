@@ -8,7 +8,7 @@ init:
 	env/bin/pip install -r requirements.txt
 
 run:
-	TEST=1 env/bin/python3 foobartory/foobartory.py
+	env/bin/python3 foobartory/foobartory.py
 
 test:
 	-env/bin/flake8
