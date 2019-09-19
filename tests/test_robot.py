@@ -96,3 +96,95 @@ def test_mine_foo_then_mine_bar_should_not_mine_bar_but_move():
     assert len(robot.warehouses['foo']) == 1
     assert len(robot.warehouses['bar']) == 0
     assert robot._last_action == 'move'
+
+
+def test_mine_bar_then_mine_foo_should_not_mine_foo_but_move():
+    # Given
+    robot = Robot()
+
+    # When
+    robot.mine_bar()
+    robot.mine_foo()
+
+    # Then
+    assert len(robot.warehouses['foo']) == 0
+    assert len(robot.warehouses['bar']) == 1
+    assert robot._last_action == 'move'
+
+
+def test_can_assemble_foobar_when_no_foo_but_bar():
+    # Given
+    robot = Robot()
+    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
+    robot.warehouses["bar"].append(bar)
+
+    # When & Then
+    assert robot._can_assemble_foobar() is False
+
+
+def test_can_assemble_foobar_when_foo_but_no_bar():
+    # Given
+    robot = Robot()
+    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
+    robot.warehouses["foo"].append(foo)
+
+    # When & Then
+    assert robot._can_assemble_foobar() is False
+
+
+def test_can_assemble_foobar_when_foo_and_bar():
+    # Given
+    robot = Robot()
+    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
+    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
+    robot.warehouses["foo"].append(foo)
+    robot.warehouses["bar"].append(bar)
+
+    # When & Then
+    assert robot._can_assemble_foobar() is True
+
+
+def test_next_action_when_no_foo_then_mine_foo():
+    # Given
+    robot = Robot()
+
+    # When
+    robot.next_action()
+
+    # Then
+    assert len(robot.warehouses['foo']) == 1
+    assert len(robot.warehouses['bar']) == 0
+    assert len(robot.warehouses['foobar']) == 0
+
+
+def test_next_action_when_foo_but_no_bar_then_mine_bar():
+    # Given
+    robot = Robot()
+    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
+    robot.warehouses["foo"].append(foo)
+
+    # When
+    robot.next_action()
+
+    # Then
+    assert len(robot.warehouses['foo']) == 1
+    assert len(robot.warehouses['bar']) == 1
+    assert len(robot.warehouses['foobar']) == 0
+
+
+def test_next_action_when_foo_and_bar_then_assemble_foobar():
+    # Given
+    robot = Robot()
+    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
+    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
+    robot.warehouses["foo"].append(foo)
+    robot.warehouses["bar"].append(bar)
+
+    # When
+    robot.next_action(success_threshold=100)
+
+    # Then
+    assert len(robot.warehouses['foo']) == 0
+    assert len(robot.warehouses['bar']) == 0
+    assert len(robot.warehouses['foobar']) == 1
+    assert robot.warehouses['foobar'][0] == (foo, bar)

@@ -49,6 +49,23 @@ class Robot:
     def assemble_foobar(self, success_threshold=60):
         if self._execute_action_or_move('assemble_foobar'):
             foo = self.warehouses['foo'].pop()
-            if randrange(100) < success_threshold:
+            if randrange(100) <= success_threshold:
                 bar = self.warehouses['bar'].pop()
                 self.warehouses['foobar'].append((foo, bar))
+
+    def _is_foo_stock_low(self):
+        return len(self.warehouses['foo']) == 0
+
+    def _is_bar_stock_low(self):
+        return len(self.warehouses['bar']) == 0
+
+    def _can_assemble_foobar(self):
+        return not (self._is_foo_stock_low() or self._is_bar_stock_low())
+
+    def next_action(self, success_threshold=60):
+        if self._is_foo_stock_low():
+            self.mine_foo()
+        elif self._is_bar_stock_low():
+            self.mine_bar()
+        elif self._can_assemble_foobar():
+            self.assemble_foobar(success_threshold)
