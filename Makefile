@@ -11,7 +11,7 @@ run:
 	env/bin/python3 foobartory/foobartory.py
 
 test:
-	env/bin/pytest
+	TEST=1 env/bin/pytest
 
 clean:
 	rm -rf env
