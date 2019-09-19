@@ -1,191 +1,196 @@
 from collections import defaultdict
+import unittest
 from uuid import UUID
 from foobartory.robot import Robot
 
 
-def test_mine_foo():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
+class RobotTest(unittest.TestCase):
+    def setup_method(self, test_method):
+        warehouses = defaultdict(list)
+        warehouses['robot'] = []
+        warehouses['money'] = 0
+        self.robot = Robot(warehouses)
+        self.foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
+        self.bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
 
-    # When
-    robot.mine_foo()
+    def test_mine_foo(self):
+        # Given
 
-    # Then
-    assert len(robot._warehouses['foo']) == 1
+        # When
+        self.robot.mine_foo()
 
+        # Then
+        assert len(self.robot._warehouses['foo']) == 1
 
-def test_mine_foo_twice():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
+    def test_mine_foo_twice(self):
+        # Given
 
-    # When
-    robot.mine_foo()
-    robot.mine_foo()
+        # When
+        self.robot.mine_foo()
+        self.robot.mine_foo()
 
-    # Then
-    assert len(robot._warehouses['foo']) == 2
+        # Then
+        assert len(self.robot._warehouses['foo']) == 2
 
+    def test_mine_bar(self):
+        # Given
 
-def test_mine_bar():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
+        # When
+        self.robot.mine_bar()
 
-    # When
-    robot.mine_bar()
+        # Then
+        assert len(self.robot._warehouses['bar']) == 1
 
-    # Then
-    assert len(robot._warehouses['bar']) == 1
+    def test_mine_bar_twice(self):
+        # Given
 
+        # When
+        self.robot.mine_bar()
+        self.robot.mine_bar()
 
-def test_mine_bar_twice():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
+        # Then
+        assert len(self.robot._warehouses['bar']) == 2
 
-    # When
-    robot.mine_bar()
-    robot.mine_bar()
+    def test_assemble_foobar_when_success(self):
+        # Given
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["bar"].append(self.bar)
 
-    # Then
-    assert len(robot._warehouses['bar']) == 2
+        # When
+        self.robot.assemble_foobar(success_threshold=100)
 
+        # Then
+        assert len(self.robot._warehouses['foo']) == 0
+        assert len(self.robot._warehouses['bar']) == 0
+        assert len(self.robot._warehouses['foobar']) == 1
+        assert self.robot._warehouses['foobar'][0] == (self.foo, self.bar)
 
-def test_assemble_foobar_when_success():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
-    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
-    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
-    robot._warehouses["foo"].append(foo)
-    robot._warehouses["bar"].append(bar)
+    def test_assemble_foobar_when_failure(self):
+        # Given
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["bar"].append(self.bar)
 
-    # When
-    robot.assemble_foobar(success_threshold=100)
+        # When
+        self.robot.assemble_foobar(success_threshold=0)
 
-    # Then
-    assert len(robot._warehouses['foo']) == 0
-    assert len(robot._warehouses['bar']) == 0
-    assert len(robot._warehouses['foobar']) == 1
-    assert robot._warehouses['foobar'][0] == (foo, bar)
+        # Then
+        assert len(self.robot._warehouses['foo']) == 0
+        assert len(self.robot._warehouses['bar']) == 1
+        assert self.robot._warehouses['bar'][0] == self.bar
+        assert len(self.robot._warehouses['foobar']) == 0
 
+    def test_mine_foo_then_mine_bar_should_not_mine_bar_but_move(self):
+        # Given
 
-def test_assemble_foobar_when_failure():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
-    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
-    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
-    robot._warehouses["foo"].append(foo)
-    robot._warehouses["bar"].append(bar)
+        # When
+        self.robot.mine_foo()
+        self.robot.mine_bar()
 
-    # When
-    robot.assemble_foobar(success_threshold=0)
+        # Then
+        assert len(self.robot._warehouses['foo']) == 1
+        assert len(self.robot._warehouses['bar']) == 0
+        assert self.robot._last_action == 'move'
 
-    # Then
-    assert len(robot._warehouses['foo']) == 0
-    assert len(robot._warehouses['bar']) == 1
-    assert robot._warehouses['bar'][0] == bar
-    assert len(robot._warehouses['foobar']) == 0
+    def test_mine_bar_then_mine_foo_should_not_mine_foo_but_move(self):
+        # Given
 
+        # When
+        self.robot.mine_bar()
+        self.robot.mine_foo()
 
-def test_mine_foo_then_mine_bar_should_not_mine_bar_but_move():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
+        # Then
+        assert len(self.robot._warehouses['foo']) == 0
+        assert len(self.robot._warehouses['bar']) == 1
+        assert self.robot._last_action == 'move'
 
-    # When
-    robot.mine_foo()
-    robot.mine_bar()
+    def test_can_assemble_foobar_when_no_foo_but_bar(self):
+        # Given
+        self.robot._warehouses["bar"].append(self.bar)
 
-    # Then
-    assert len(robot._warehouses['foo']) == 1
-    assert len(robot._warehouses['bar']) == 0
-    assert robot._last_action == 'move'
+        # When & Then
+        assert self.robot._can_assemble_foobar() is False
 
+    def test_can_assemble_foobar_when_foo_but_no_bar(self):
+        # Given
+        self.robot._warehouses["foo"].append(self.foo)
 
-def test_mine_bar_then_mine_foo_should_not_mine_foo_but_move():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
+        # When & Then
+        assert self.robot._can_assemble_foobar() is False
 
-    # When
-    robot.mine_bar()
-    robot.mine_foo()
+    def test_can_assemble_foobar_when_less_than_5_foo(self):
+        # Given
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["bar"].append(self.bar)
 
-    # Then
-    assert len(robot._warehouses['foo']) == 0
-    assert len(robot._warehouses['bar']) == 1
-    assert robot._last_action == 'move'
+        # When & Then
+        assert self.robot._can_assemble_foobar() is False
 
+    def test_can_assemble_foobar_when_more_than_5_foo_and_1_bar(self):
+        # Given
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["bar"].append(self.bar)
 
-def test_can_assemble_foobar_when_no_foo_but_bar():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
-    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
-    robot._warehouses["bar"].append(bar)
+        # When & Then
+        assert self.robot._can_assemble_foobar() is True
 
-    # When & Then
-    assert robot._can_assemble_foobar() is False
+    def test_next_action_when_no_bar_then_mine_bar(self):
+        # Given
 
+        # When
+        self.robot.next_action()
 
-def test_can_assemble_foobar_when_foo_but_no_bar():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
-    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
-    robot._warehouses["foo"].append(foo)
+        # Then
+        assert len(self.robot._warehouses['foo']) == 0
+        assert len(self.robot._warehouses['bar']) == 1
+        assert len(self.robot._warehouses['foobar']) == 0
 
-    # When & Then
-    assert robot._can_assemble_foobar() is False
+    def test_next_action_when_no_foo_then_mine_bar(self):
+        # Given
 
+        # When
+        self.robot.next_action()
 
-def test_can_assemble_foobar_when_foo_and_bar():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
-    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
-    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
-    robot._warehouses["foo"].append(foo)
-    robot._warehouses["bar"].append(bar)
+        # Then
+        assert len(self.robot._warehouses['foo']) == 0
+        assert len(self.robot._warehouses['bar']) == 1
+        assert len(self.robot._warehouses['foobar']) == 0
 
-    # When & Then
-    assert robot._can_assemble_foobar() is True
+    def test_next_action_when_foo_but_no_bar_then_mine_bar(self):
+        # Given
+        self.robot._warehouses["foo"].append(self.foo)
 
+        # When
+        self.robot.next_action()
 
-def test_next_action_when_no_foo_then_mine_foo():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
+        # Then
+        assert len(self.robot._warehouses['foo']) == 1
+        assert len(self.robot._warehouses['bar']) == 1
+        assert len(self.robot._warehouses['foobar']) == 0
 
-    # When
-    robot.next_action()
+    def test_next_action_when_foo_and_bar_then_assemble_foobar(self):
+        # Given
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["foo"].append(self.foo)
+        self.robot._warehouses["bar"].append(self.bar)
 
-    # Then
-    assert len(robot._warehouses['foo']) == 1
-    assert len(robot._warehouses['bar']) == 0
-    assert len(robot._warehouses['foobar']) == 0
+        # When
+        self.robot.next_action(success_threshold=100)
 
-
-def test_next_action_when_foo_but_no_bar_then_mine_bar():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
-    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
-    robot._warehouses["foo"].append(foo)
-
-    # When
-    robot.next_action()
-
-    # Then
-    assert len(robot._warehouses['foo']) == 1
-    assert len(robot._warehouses['bar']) == 1
-    assert len(robot._warehouses['foobar']) == 0
-
-
-def test_next_action_when_foo_and_bar_then_assemble_foobar():
-    # Given
-    robot = Robot(warehouses=defaultdict(list))
-    foo = UUID('62c0727a-0938-44d9-a268-66b84baf4ff6')
-    bar = UUID('f9d527e1-4b86-4f54-8579-e5b9b3432362')
-    robot._warehouses["foo"].append(foo)
-    robot._warehouses["bar"].append(bar)
-
-    # When
-    robot.next_action(success_threshold=100)
-
-    # Then
-    assert len(robot._warehouses['foo']) == 0
-    assert len(robot._warehouses['bar']) == 0
-    assert len(robot._warehouses['foobar']) == 1
-    assert robot._warehouses['foobar'][0] == (foo, bar)
+        # Then
+        assert len(self.robot._warehouses['foo']) == 5
+        assert len(self.robot._warehouses['bar']) == 0
+        assert len(self.robot._warehouses['foobar']) == 1
+        assert self.robot._warehouses['foobar'][0] == (self.foo, self.bar)

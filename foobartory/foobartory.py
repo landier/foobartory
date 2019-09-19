@@ -8,28 +8,28 @@ FINAL_NB_ROBOTS = 30
 
 class Foobartory:
     def __init__(self):
-        self._robots = []
         self._warehouses = defaultdict(list)
+        self._warehouses['robot'] = []
         self._warehouses['money'] = 0
 
     def _display_stats(self):
         print("-"*20)
-        print(f"robots: {len(self._robots)}")
+        print(f"robots: {len(self._warehouses['robot'])}")
         print(f"money: {self._warehouses['money']}")
         print(f"foo: {len(self._warehouses['foo'])}")
         print(f"bar: {len(self._warehouses['bar'])}")
         print(f"foobar: {len(self._warehouses['foobar'])}")
-        print("#"*20)
 
     def run(self):
         for id in range(INITIAL_NB_ROBOTS):
-            self._robots.append(Robot(self._warehouses, id))
+            self._warehouses['robot'].append(Robot(self._warehouses, id))
 
-        while len(self._robots) < FINAL_NB_ROBOTS:
-            for robot in self._robots:
-                print(f"Robot {robot._id} acting")
+        while len(self._warehouses['robot']) < FINAL_NB_ROBOTS:
+            for robot in self._warehouses['robot']:
                 robot.next_action()
                 self._display_stats()
+                if len(self._warehouses['robot']) == FINAL_NB_ROBOTS:
+                    break
 
 
 if __name__ == '__main__':
