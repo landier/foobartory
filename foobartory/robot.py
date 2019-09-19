@@ -1,4 +1,3 @@
-from collections import defaultdict
 import os
 import time
 from random import randrange, uniform
@@ -9,8 +8,9 @@ TEST = os.environ.get('TEST', None)
 
 
 class Robot:
-    def __init__(self):
-        self.warehouses = defaultdict(list)
+    def __init__(self, warehouses, id=None):
+        self._id = id
+        self._warehouses = warehouses
         self._last_action = None
         self._nb_actions = 0
 
@@ -40,24 +40,24 @@ class Robot:
 
     def mine_foo(self):
         if self._execute_action_or_move('mine_foo'):
-            self.warehouses['foo'].append(uuid4())
+            self._warehouses['foo'].append(uuid4())
 
     def mine_bar(self):
         if self._execute_action_or_move('mine_bar'):
-            self.warehouses['bar'].append(uuid4())
+            self._warehouses['bar'].append(uuid4())
 
     def assemble_foobar(self, success_threshold=60):
         if self._execute_action_or_move('assemble_foobar'):
-            foo = self.warehouses['foo'].pop()
+            foo = self._warehouses['foo'].pop()
             if randrange(100) <= success_threshold:
-                bar = self.warehouses['bar'].pop()
-                self.warehouses['foobar'].append((foo, bar))
+                bar = self._warehouses['bar'].pop()
+                self._warehouses['foobar'].append((foo, bar))
 
     def _is_foo_stock_low(self):
-        return len(self.warehouses['foo']) == 0
+        return len(self._warehouses['foo']) == 0
 
     def _is_bar_stock_low(self):
-        return len(self.warehouses['bar']) == 0
+        return len(self._warehouses['bar']) == 0
 
     def _can_assemble_foobar(self):
         return not (self._is_foo_stock_low() or self._is_bar_stock_low())
