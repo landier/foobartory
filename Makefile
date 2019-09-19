@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := all
-.PHONY : all install lint test build upload clean
+.PHONY : all init run test clean
 
-all: init test clean
+all: init run test
 
 init:
 	python3 -m venv env
