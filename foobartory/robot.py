@@ -9,7 +9,7 @@ SLEEP_RATIO = os.environ.get('SLEEP_RATIO', 0.1)
 
 
 class Robot:
-    def __init__(self, warehouses, id=None):
+    def __init__(self, warehouses):
         self._id = id
         self._warehouses = warehouses
         self._last_action = None
