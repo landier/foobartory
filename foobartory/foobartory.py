@@ -21,8 +21,8 @@ class Foobartory:
         print(f"foobar: {len(self._warehouses['foobar'])}")
 
     def run(self):
-        for id in range(INITIAL_NB_ROBOTS):
-            self._warehouses['robot'].append(Robot(self._warehouses, id))
+        for i in range(INITIAL_NB_ROBOTS):
+            self._warehouses['robot'].append(Robot(self._warehouses))
 
         while len(self._warehouses['robot']) < FINAL_NB_ROBOTS:
             for robot in self._warehouses['robot']:
